@@ -1,0 +1,25 @@
+{
+  "name": "wthr",
+  "version": "0.0.1",
+  "description": "A command-line weather tool.",
+  "main": "index.js",
+  "license": "MIT",
+  "bin": {
+    "wthr": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/michaellee/wthr.git"
+  },
+  "keywords": [
+    "weather",
+    "cli",
+    "command-line",
+    "javascript"
+  ],
+  "author": "Michael Lee",
+  "bugs": {
+    "url": "https://github.com/michaellee/wthr/issues"
+  },
+  "homepage": "https://github.com/michaellee/wthr#readme"
+}
