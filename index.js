@@ -45,7 +45,7 @@ https.get(options, function(res) {
   res.on('end', function(){
     var data = JSON.parse(body).currently
     var icon = emojifyWeather(data.icon)
-    var temp = data.temperature + '°F'
+    var temp = Math.floor(data.temperature) + '°F'
     var time = moment.unix(data.time).format('LT')
     console.log(icon + 'It\'s currently ' + temp + ' and ' + data.summary.toLowerCase() + ' at ' + time + '.')
   })
