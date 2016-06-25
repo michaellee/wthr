@@ -21,5 +21,6 @@
   "bugs": {
     "url": "https://github.com/michaellee/wthr/issues"
   },
-  "homepage": "https://github.com/michaellee/wthr#readme"
+  "homepage": "https://github.com/michaellee/wthr#readme",
+  "dependencies": {}
 }
