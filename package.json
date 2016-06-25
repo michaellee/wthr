@@ -22,5 +22,8 @@
     "url": "https://github.com/michaellee/wthr/issues"
   },
   "homepage": "https://github.com/michaellee/wthr#readme",
-  "dependencies": {}
+  "dependencies": {
+    "emojic": "^1.1.5",
+    "moment": "^2.13.0"
+  }
 }
