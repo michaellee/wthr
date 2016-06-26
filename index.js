@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
+require('dotenv').config()
 const https = require('https')
 const moment = require('moment')
 const emojic = require('emojic')
 
-var apiKey = 'bcd6b8865cccc61aa52d12f0d0bc0939'
+var apiKey = process.env.FORECASTIO_API_KEY 
 var coordinates = {
   latitude: '35.8059',
   longitude: '-78.7997'
