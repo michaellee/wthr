@@ -1,20 +1,16 @@
 #!/usr/bin/env node
-
-require('dotenv').config()
 const https = require('https')
 const moment = require('moment')
 const emojic = require('emojic')
+const program = require('commander')
+const fs = require('fs')
+const co = require('co')
+const prompt = require('co-prompt')
 
-var apiKey = process.env.FORECASTIO_API_KEY 
-var coordinates = {
-  latitude: '35.8059',
-  longitude: '-78.7997'
-}
+var home = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']
+var defaultConfigPath = home + '/.wthr_config'
 
-var options = {
-  host: 'api.forecast.io',
-  path: '/forecast/' + apiKey + '/' + coordinates.latitude + ',' + coordinates.longitude
-}
+var configFileExists = null
 
 var emojifyWeather = function (icon){
   var icons = {
@@ -37,19 +33,63 @@ var emojifyWeather = function (icon){
   }
 }
 
-https.get(options, function(res) {
-  var body = ""
-  res.on("data", function(chunk) {
-    body += chunk 
-  });
+var getWeather = function (config, callback){
+  var options = {
+    host: 'api.forecast.io',
+    path: '/forecast/' + config.forecastioAPI + '/' + config.latitude + ',' + config.longitude
+  }
+  
+  https.get(options, function(res) {
+    var body = ""
+    res.on("data", function(chunk) {
+      body += chunk 
+    });
 
-  res.on('end', function(){
-    var data = JSON.parse(body).currently
-    var icon = emojifyWeather(data.icon)
-    var temp = Math.floor(data.temperature) + '°F'
-    var time = moment.unix(data.time).format('LT')
-    console.log(icon + 'It\'s currently ' + temp + ' and ' + data.summary.toLowerCase() + ' at ' + time + '.')
+    res.on('end', function(){
+      var data = JSON.parse(body).currently
+      var icon = emojifyWeather(data.icon)
+      var temp = Math.floor(data.temperature) + '°F'
+      var time = moment.unix(data.time).format('LT')
+      var weather = icon + 'It\'s currently ' + temp + ' and ' + data.summary.toLowerCase() + ' at ' + time + '.'
+      callback(weather)
+    })
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
   })
-}).on('error', function(e) {
-  console.log("Got error: " + e.message);
-});
+}
+
+try {
+  configFileExists = fs.statSync(defaultConfigPath).isFile()
+} catch (e) {
+  configFileExists = false
+}
+
+if(configFileExists){
+  var obj = JSON.parse(fs.readFileSync(defaultConfigPath, 'utf8'))
+  
+  getWeather(obj, function(weather){
+    console.log(weather)
+    process.exit()
+  })
+} else {
+  co(function * () {
+    var forecastioAPI = yield prompt('What is your forecast.io API key? If you don\'t have one, get one at https://developer.forecast.io: ')
+    var latitude = yield prompt('What is your location\'s latitude? Don\'t know what it is? Get it at http://freegeoip.net: ')
+    var longitude = yield prompt('What is your location\'s longitude? ')
+    
+    var config = {
+      'forecastioAPI': forecastioAPI,
+      'latitude': latitude,
+      'longitude': longitude
+    }
+
+    fs.closeSync(fs.openSync(defaultConfigPath, 'w'))
+    fs.writeFileSync(defaultConfigPath, JSON.stringify(config, '', 2))
+
+    getWeather(config, function(weather){
+      console.log(weather)
+      process.exit()
+    })
+    
+  })
+}
